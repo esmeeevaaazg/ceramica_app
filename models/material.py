@@ -1,13 +1,23 @@
+# material.py
 from db_connection import get_conn
 
 class Material:
+    """
+    Clase para gestionar los materiales disponibles.
+    Métodos CRUD: create, get_all, get_by_id, update, delete.
+    """
+
     @staticmethod
     def create(nombre, proveedor, costo_unitario):
+        """
+        Crea un nuevo material.
+        :return: ID del material creado
+        """
         conn = get_conn()
         cur = conn.cursor()
         sql = """
-            INSERT INTO material (nombre, proveedor, costo_unitario)
-            VALUES (%s, %s, %s)
+        INSERT INTO material (nombre, proveedor, costo_unitario)
+        VALUES (%s, %s, %s)
         """
         cur.execute(sql, (nombre, proveedor, costo_unitario))
         conn.commit()
@@ -18,6 +28,7 @@ class Material:
 
     @staticmethod
     def get_all():
+        """Devuelve todos los materiales"""
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT * FROM material")
@@ -28,6 +39,7 @@ class Material:
 
     @staticmethod
     def get_by_id(id):
+        """Devuelve un material según su ID"""
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT * FROM material WHERE id=%s", (id,))
@@ -38,12 +50,11 @@ class Material:
 
     @staticmethod
     def update(id, nombre, proveedor, costo_unitario):
+        """Actualiza un material existente"""
         conn = get_conn()
         cur = conn.cursor()
         sql = """
-            UPDATE material
-            SET nombre=%s, proveedor=%s, costo_unitario=%s
-            WHERE id=%s
+        UPDATE material SET nombre=%s, proveedor=%s, costo_unitario=%s WHERE id=%s
         """
         cur.execute(sql, (nombre, proveedor, costo_unitario, id))
         conn.commit()
@@ -52,6 +63,7 @@ class Material:
 
     @staticmethod
     def delete(id):
+        """Elimina un material por ID"""
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("DELETE FROM material WHERE id=%s", (id,))
