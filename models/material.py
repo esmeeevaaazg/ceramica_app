@@ -1,72 +1,47 @@
-# material.py
-from db_connection import get_conn
+# materiales_frame.py
+import tkinter as tk
+from tkinter import ttk, messagebox
+from models.material import Material
 
-class Material:
+class MaterialesFrame(tk.Frame):
     """
-    Clase para gestionar los materiales disponibles.
-    Métodos CRUD: create, get_all, get_by_id, update, delete.
+    Ventana de gestión de materiales.
+    Permite listar, agregar, editar y eliminar materiales.
     """
+    def __init__(self, parent):
+        super().__init__(parent, bg="#FFF8F0")
 
-    @staticmethod
-    def create(nombre, proveedor, costo_unitario):
-        """
-        Crea un nuevo material.
-        :return: ID del material creado
-        """
-        conn = get_conn()
-        cur = conn.cursor()
-        sql = """
-        INSERT INTO material (nombre, proveedor, costo_unitario)
-        VALUES (%s, %s, %s)
-        """
-        cur.execute(sql, (nombre, proveedor, costo_unitario))
-        conn.commit()
-        new_id = cur.lastrowid
-        cur.close()
-        conn.close()
-        return new_id
+        tk.Label(self, text="Materiales", font=("Segoe UI", 18, "bold"),
+                 fg="#5B3E31", bg="#FFF8F0").pack(pady=15)
 
-    @staticmethod
-    def get_all():
-        """Devuelve todos los materiales"""
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM material")
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
-        return rows
+        self.tree = ttk.Treeview(self, columns=("ID", "Nombre", "Proveedor", "Costo Unitario"), show="headings")
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+        self.tree.pack(padx=20, pady=10, fill="x")
 
-    @staticmethod
-    def get_by_id(id):
-        """Devuelve un material según su ID"""
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM material WHERE id=%s", (id,))
-        row = cur.fetchone()
-        cur.close()
-        conn.close()
-        return row
+        btn_frame = tk.Frame(self, bg="#FFF8F0")
+        btn_frame.pack(pady=10)
+        tk.Button(btn_frame, text="Agregar Material", bg="#FFD9B3", fg="#5B3E31",
+                  width=15, command=self.agregar_material).grid(row=0, column=0, padx=5)
+        tk.Button(btn_frame, text="Editar Material", bg="#FFCC99", fg="#5B3E31",
+                  width=15, command=self.editar_material).grid(row=0, column=1, padx=5)
+        tk.Button(btn_frame, text="Eliminar Material", bg="#FFB366", fg="#5B3E31",
+                  width=15, command=self.eliminar_material).grid(row=0, column=2, padx=5)
 
-    @staticmethod
-    def update(id, nombre, proveedor, costo_unitario):
-        """Actualiza un material existente"""
-        conn = get_conn()
-        cur = conn.cursor()
-        sql = """
-        UPDATE material SET nombre=%s, proveedor=%s, costo_unitario=%s WHERE id=%s
-        """
-        cur.execute(sql, (nombre, proveedor, costo_unitario, id))
-        conn.commit()
-        cur.close()
-        conn.close()
+        self.cargar_materiales()
 
-    @staticmethod
-    def delete(id):
-        """Elimina un material por ID"""
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("DELETE FROM material WHERE id=%s", (id,))
-        conn.commit()
-        cur.close()
-        conn.close()
+    def cargar_materiales(self):
+        """Carga todos los materiales en la tabla"""
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        for m in Material.get_all():
+            self.tree.insert("", "end", values=(m[0], m[1], m[2], m[3]))
+
+    def agregar_material(self):
+        messagebox.showinfo("Agregar", "Formulario para agregar material.")
+
+    def editar_material(self):
+        messagebox.showinfo("Editar", "Editar material seleccionado.")
+
+    def eliminar_material(self):
+        messagebox.showinfo("Eliminar", "Eliminar material seleccionado.")

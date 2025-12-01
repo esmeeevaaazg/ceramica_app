@@ -1,59 +1,37 @@
-# inventario.py
-from db_connection import get_conn
+# inventario_frame.py
+import tkinter as tk
+from tkinter import ttk, messagebox
+from models.inventario import Inventario
 
-class Inventario:
+class InventarioFrame(tk.Frame):
     """
-    Clase para manejar el inventario de materiales.
-    Métodos estáticos para CRUD de inventario.
+    Ventana de gestión de inventario.
+    Lista todos los materiales y sus stocks, permite actualizar stock mínimo y actual.
     """
+    def __init__(self, parent):
+        super().__init__(parent, bg="#FFF8F0")
 
-    @staticmethod
-    def create(material_id, stock_actual, stock_minimo):
-        """
-        Crea un registro de inventario para un material.
-        :return: ID del nuevo registro
-        """
-        conn = get_conn()
-        cur = conn.cursor()
-        sql = """
-        INSERT INTO inventario (material_id, stock_actual, stock_minimo)
-        VALUES (%s, %s, %s)
-        """
-        cur.execute(sql, (material_id, stock_actual, stock_minimo))
-        conn.commit()
-        new_id = cur.lastrowid
-        cur.close()
-        conn.close()
-        return new_id
+        tk.Label(self, text="Inventario", font=("Segoe UI", 18, "bold"),
+                 fg="#5B3E31", bg="#FFF8F0").pack(pady=15)
 
-    @staticmethod
-    def get_all():
-        """
-        Devuelve todos los registros de inventario con nombre de material.
-        """
-        conn = get_conn()
-        cur = conn.cursor()
-        cur.execute("""
-        SELECT inv.id, mat.nombre, inv.stock_actual, inv.stock_minimo
-        FROM inventario inv
-        JOIN material mat ON mat.id = inv.material_id
-        """)
-        rows = cur.fetchall()
-        cur.close()
-        conn.close()
-        return rows
+        self.tree = ttk.Treeview(self, columns=("ID", "Material", "Stock Actual", "Stock Mínimo"), show="headings")
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text=col)
+        self.tree.pack(padx=20, pady=10, fill="x")
 
-    @staticmethod
-    def update(id, stock_actual, stock_minimo):
-        """
-        Actualiza el stock actual y mínimo de un inventario.
-        """
-        conn = get_conn()
-        cur = conn.cursor()
-        sql = """
-        UPDATE inventario SET stock_actual=%s, stock_minimo=%s WHERE id=%s
-        """
-        cur.execute(sql, (stock_actual, stock_minimo, id))
-        conn.commit()
-        cur.close()
-        conn.close()
+        btn_frame = tk.Frame(self, bg="#FFF8F0")
+        btn_frame.pack(pady=10)
+        tk.Button(btn_frame, text="Actualizar Stock", bg="#FFD9B3", fg="#5B3E31",
+                  width=20, command=self.actualizar_stock).grid(row=0, column=0, padx=5)
+
+        self.cargar_inventario()
+
+    def cargar_inventario(self):
+        """Carga todos los registros de inventario en la tabla"""
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+        for inv in Inventario.get_all():
+            self.tree.insert("", "end", values=inv)
+
+    def actualizar_stock(self):
+        messagebox.showinfo("Actualizar", "Formulario para actualizar stock del inventario.")
