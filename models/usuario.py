@@ -1,7 +1,12 @@
+# usuario.py
 from db_connection import get_conn
-import mysql.connector
 
 class Usuario:
+    """
+    Clase para manejar usuarios del sistema.
+    Incluye métodos CRUD y manejo de roles.
+    """
+
     def __init__(self, id, nombre, correo, telefono, role, contraseña_hash):
         self.id = id
         self.nombre = nombre
@@ -12,11 +17,15 @@ class Usuario:
 
     @staticmethod
     def create(nombre, correo, telefono, role, contraseña_hash):
+        """
+        Crea un nuevo usuario.
+        :return: ID del usuario creado
+        """
         conn = get_conn()
         cur = conn.cursor()
         sql = """
-            INSERT INTO usuario (nombre, correo, telefono, role, contraseña_hash)
-            VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO usuario (nombre, correo, telefono, role, contraseña_hash)
+        VALUES (%s, %s, %s, %s, %s)
         """
         cur.execute(sql, (nombre, correo, telefono, role, contraseña_hash))
         conn.commit()
@@ -27,6 +36,7 @@ class Usuario:
 
     @staticmethod
     def get_all():
+        """Devuelve todos los usuarios"""
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT * FROM usuario")
@@ -37,6 +47,7 @@ class Usuario:
 
     @staticmethod
     def get_by_id(id):
+        """Devuelve un usuario por ID"""
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("SELECT * FROM usuario WHERE id=%s", (id,))
@@ -47,11 +58,11 @@ class Usuario:
 
     @staticmethod
     def update(id, nombre, correo, telefono, role):
+        """Actualiza los datos de un usuario"""
         conn = get_conn()
         cur = conn.cursor()
         sql = """
-            UPDATE usuario SET nombre=%s, correo=%s, telefono=%s, role=%s
-            WHERE id=%s
+        UPDATE usuario SET nombre=%s, correo=%s, telefono=%s, role=%s WHERE id=%s
         """
         cur.execute(sql, (nombre, correo, telefono, role, id))
         conn.commit()
@@ -60,6 +71,7 @@ class Usuario:
 
     @staticmethod
     def delete(id):
+        """Elimina un usuario por ID"""
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("DELETE FROM usuario WHERE id=%s", (id,))
