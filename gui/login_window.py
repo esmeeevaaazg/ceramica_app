@@ -1,13 +1,8 @@
-# login_window.py
 import tkinter as tk
 from tkinter import ttk, messagebox
-from models.usuario import Usuario
+from ceramica_app.models.usuario import Usuario  # Import absoluto correcto
 
 class LoginWindow(tk.Frame):
-    """
-    Ventana de login de la aplicación.
-    Modo claro con colores cálidos y tipografía elegante.
-    """
     def __init__(self, parent, on_login_success, on_register):
         super().__init__(parent, bg="#FFF8F0")
         self.parent = parent
@@ -18,7 +13,7 @@ class LoginWindow(tk.Frame):
         lbl_title = tk.Label(
             self,
             text="CERÁMICA ARTESANAL",
-            font=("Segoe UI", 20, "bold"),
+            font=("Segoe UI", 18, "bold"),
             fg="#5B3E31",
             bg="#FFF8F0"
         )
@@ -28,37 +23,30 @@ class LoginWindow(tk.Frame):
         form = tk.Frame(self, bg="#FFF8F0")
         form.pack(pady=10)
 
-        tk.Label(form, text="Usuario:", font=("Segoe UI", 12),
-                 bg="#FFF8F0", fg="#5B3E31").grid(row=0, column=0, sticky="w")
+        tk.Label(form, text="Usuario:", font=("Segoe UI", 12), bg="#FFF8F0", fg="#5B3E31").grid(row=0, column=0, sticky="w")
         self.entry_user = ttk.Entry(form, width=30)
         self.entry_user.grid(row=1, column=0, padx=5, pady=5)
 
-        tk.Label(form, text="Contraseña:", font=("Segoe UI", 12),
-                 bg="#FFF8F0", fg="#5B3E31").grid(row=2, column=0, sticky="w")
+        tk.Label(form, text="Contraseña:", font=("Segoe UI", 12), bg="#FFF8F0", fg="#5B3E31").grid(row=2, column=0, sticky="w")
         self.entry_pass = ttk.Entry(form, width=30, show="*")
         self.entry_pass.grid(row=3, column=0, padx=5, pady=5)
 
         # ---------- BOTONES ----------
-        btn_frame = tk.Frame(self, bg="#FFF8F0")
-        btn_frame.pack(pady=15)
-        tk.Button(btn_frame, text="Iniciar Sesión", bg="#FFD9B3", fg="#5B3E31",
-                  width=20, command=self.login).grid(row=0, column=0, padx=5)
-        tk.Button(btn_frame, text="Registrarse", bg="#FFCC99", fg="#5B3E31",
-                  width=20, command=on_register).grid(row=0, column=1, padx=5)
+        btn_login = tk.Button(form, text="Iniciar Sesión", bg="#FFD9B3", fg="#5B3E31", font=("Segoe UI",12,"bold"), relief="flat", cursor="hand2", command=self.login)
+        btn_login.grid(row=4, column=0, pady=10, sticky="ew")
 
-        self.pack(fill="both", expand=True)
+        btn_register = tk.Button(form, text="Registrarse", bg="#FFCC99", fg="#5B3E31", font=("Segoe UI",12,"bold"), relief="flat", cursor="hand2", command=self.on_register)
+        btn_register.grid(row=5, column=0, pady=5, sticky="ew")
 
     def login(self):
-        """
-        Valida el usuario (placeholder simple)
-        """
-        usuario = self.entry_user.get()
+        username = self.entry_user.get()
         password = self.entry_pass.get()
-        if usuario and password:
-            # Por ahora creamos un objeto usuario dummy para dashboard
-            class DummyUser:
-                def __init__(self, nombre):
-                    self.nombre = usuario
-            self.on_login_success(DummyUser(usuario))
+        if not username or not password:
+            messagebox.showwarning("Campos vacíos", "Por favor ingresa usuario y contraseña.")
+            return
+
+        usuario = Usuario.validar(username, password)
+        if usuario:
+            self.on_login_success(usuario)
         else:
-            messagebox.showerror("Error", "Por favor ingresa usuario y contraseña.")
+            messagebox.showerror("Error", "Usuario o contraseña incorrectos.")
