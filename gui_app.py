@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 # Importar ventanas de módulos claras
-from login_window import LoginWindow
+from gui.login_window import LoginWindow
 from usuarios_frame import UsuariosFrame
 from materiales_frame import MaterialesFrame
 from inventario_frame import InventarioFrame

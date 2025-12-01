@@ -1,7 +1,7 @@
 # usuarios_frame.py
 import tkinter as tk
-from tkinter import ttk, messagebox
-from models.usuario import Usuario
+from db_connection import get_conn
+import mysql.connector
 
 class UsuariosFrame(tk.Frame):
     """
